@@ -160,6 +160,6 @@ KAPI Boolean input_was_button_up(buttons button);
 KAPI void input_get_mouse_position(Int32* x, Int32* y);
 KAPI void input_get_previous_mouse_position(Int32* x, Int32* y);
 
-void input_process_button(buttons button, Boolean pressed);
+void input_process_mouse_button(buttons button, Boolean pressed);
 void input_process_mouse_move(Int16 x, Int16 y);
 void input_process_mouse_wheel(Int8 z_delta);

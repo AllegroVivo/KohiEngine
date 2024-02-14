@@ -52,7 +52,7 @@ void input_process_key(keys key, Boolean pressed) {
     }
 }
 
-void input_process_button(buttons button, Boolean pressed) {
+void input_process_mouse_button(buttons button, Boolean pressed) {
     if (state.mouse_current.buttons[button] != pressed) {
         state.mouse_current.buttons[button] = pressed;
 

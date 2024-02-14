@@ -3,7 +3,7 @@
 #if KPLATFORM_WINDOWS
 
 #include "core/logger.h"
-// #include "core/input.h"
+#include "core/input.h"
 
 #include <Windows.h>
 #include <windowsx.h>
@@ -195,25 +195,25 @@ LRESULT CALLBACK win_32_process_message(HWND hwnd, UInt32 msg, WPARAM w_param, L
         case WM_KEYUP:
         case WM_SYSKEYUP:
         {
-            //  Boolean pressed = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
-            //  Keys key = (UInt16)w_param;
+             Boolean pressed = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
+             keys key = (UInt16)w_param;
              
-            //  InputProcessKey(key, pressed);
+             input_process_key(key, pressed);
         } break;
         case WM_MOUSEMOVE:
         {
-            //  Int32 xPosition = GET_X_LPARAM(l_param);
-            //  Int32 yPosition = GET_Y_LPARAM(l_param);
+             Int32 x_position = GET_X_LPARAM(l_param);
+             Int32 y_position = GET_Y_LPARAM(l_param);
              
-            //  InputProcessMouseMove(xPosition, yPosition);
+             input_process_mouse_move(x_position, y_position);
         } break;
         case WM_MOUSEWHEEL:
         {
-            //  Int32 zDelta = GET_WHEEL_DELTA_WPARAM(w_param);
-            //  if(zDelta != 0) {
-            //      zDelta = (zDelta < 0) ? -1 : 1;
-            //      InputProcessMouseWheel(zDelta);
-            //  }
+             Int32 zDelta = GET_WHEEL_DELTA_WPARAM(w_param);
+             if(zDelta != 0) {
+                 zDelta = (zDelta < 0) ? -1 : 1;
+                 input_process_mouse_wheel(zDelta);
+             }
         } break;
         case WM_LBUTTONDOWN:
         case WM_MBUTTONDOWN:
@@ -222,25 +222,25 @@ LRESULT CALLBACK win_32_process_message(HWND hwnd, UInt32 msg, WPARAM w_param, L
         case WM_MBUTTONUP:
         case WM_RBUTTONUP:
         {
-            //  Boolean pressed = msg == WM_LBUTTONDOWN || msg == WM_MBUTTONDOWN || msg == WM_RBUTTONDOWN;
-            //  MouseButtons mouseButton = MAX_MOUSE_BUTTONS;
-            //  switch (msg) {
-            //     case WM_LBUTTONDOWN:
-            //     case WM_LBUTTONUP:
-            //         mouseButton = BUTTON_LEFT;
-            //         break;
-            //     case WM_MBUTTONDOWN:
-            //     case WM_MBUTTONUP:
-            //         mouseButton = BUTTON_MIDDLE;
-            //         break;
-            //     case WM_RBUTTONDOWN:
-            //     case WM_RBUTTONUP:
-            //         mouseButton = BUTTON_RIGHT;
-            //         break;
-            //  }
+             Boolean pressed = msg == WM_LBUTTONDOWN || msg == WM_MBUTTONDOWN || msg == WM_RBUTTONDOWN;
+             buttons mouse_button = BUTTON_MAX_BUTTONS;
+             switch (msg) {
+                case WM_LBUTTONDOWN:
+                case WM_LBUTTONUP:
+                    mouse_button = BUTTON_LEFT;
+                    break;
+                case WM_MBUTTONDOWN:
+                case WM_MBUTTONUP:
+                    mouse_button = BUTTON_MIDDLE;
+                    break;
+                case WM_RBUTTONDOWN:
+                case WM_RBUTTONUP:
+                    mouse_button = BUTTON_RIGHT;
+                    break;
+             }
              
-            //  if (mouseButton != MAX_MOUSE_BUTTONS)
-            //      InputProcessMouseButton(mouseButton, pressed);
+             if (mouse_button != BUTTON_MAX_BUTTONS)
+                 input_process_mouse_button(mouse_button, pressed);
         } break;
     }
 
