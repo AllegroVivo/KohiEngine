@@ -163,7 +163,7 @@ void platform_console_write_error(const char* message, UInt8 color) {
     WriteConsoleA(GetStdHandle(STD_ERROR_HANDLE), message, (DWORD)length, number_written, 0);
 }
 
-Double get_platform_absolute_time() {
+Double platform_get_absolute_time() {
     LARGE_INTEGER now_time;
     QueryPerformanceCounter(&now_time);
     return (Double)now_time.QuadPart * clock_frequency;
