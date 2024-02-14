@@ -18,8 +18,8 @@ void platform_shutdown(platform_state* platform_state);
 
 Boolean platform_pump_messages(platform_state* platform_state);
 
-KAPI void* platform_allocate(UInt64 size, Boolean aligned);
-KAPI void platform_free(void* block, Boolean aligned);
+void* platform_allocate(UInt64 size, Boolean aligned);
+void platform_free(void* block, Boolean aligned);
 void* platform_zero_memory(void* block, UInt64 size);
 void* platform_copy_memory(void* dest, const void* source, UInt64 size);
 void* platform_set_memory(void* dest, Int32 value, UInt64 size);

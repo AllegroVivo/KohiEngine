@@ -2,6 +2,7 @@
 #include "logger.h"
 #include "platform/platform.h"
 #include "game_types.h"
+#include "core/kmemory.h"
 
 typedef struct application_state
 {
@@ -60,6 +61,9 @@ Boolean application_create(game* game_inst) {
 }
 
 Boolean application_run() {
+
+    KINFO(get_memory_usage_str());
+
     while (app_state.is_running) {
         if (!platform_pump_messages(&app_state.platform)) {
             app_state.is_running = FALSE;
