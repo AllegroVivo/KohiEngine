@@ -2,6 +2,7 @@
 
 #if KPLATFORM_WINDOWS
 
+#include "containers/darray.h"
 #include "core/logger.h"
 #include "core/input.h"
 
@@ -171,6 +172,10 @@ Double platform_get_absolute_time() {
 
 void platform_sleep(UInt64 ms) {
     Sleep(ms);
+}
+
+void platform_get_required_extension_names(const char*** names_darray) {
+    darray_push(*names_darray, &"VK_KHR_win32_surface");
 }
 
 LRESULT CALLBACK win_32_process_message(HWND hwnd, UInt32 msg, WPARAM w_param, LPARAM l_param) {
