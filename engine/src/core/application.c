@@ -4,6 +4,7 @@
 #include "game_types.h"
 #include "core/kmemory.h"
 #include "core/event.h"
+#include "core/input.h"
 
 typedef struct application_state
 {
@@ -28,6 +29,7 @@ Boolean application_create(game* game_inst) {
     app_state.game_inst = game_inst;
     
     initialize_logging();
+    input_initialize();
     
     KFATAL("Test fatal message");
     KERROR("Test error message");
@@ -87,12 +89,16 @@ Boolean application_run() {
                 app_state.is_running = FALSE;
                 break;
             }
+
+            input_update(0);
         }
     }
 
     app_state.is_running = FALSE;
 
     event_shutdown();
+    input_shutdown();
+
     platform_shutdown(&app_state.platform);
 
     return TRUE;
