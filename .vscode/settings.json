@@ -1,0 +1,7 @@
+{
+    "workbench.colorTheme": "Gruvbox Dark (Hard)",
+    "editor.cursorStyle": "line",
+    "files.associations": {
+        "asserts.h": "c"
+    }
+}
