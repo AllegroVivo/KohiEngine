@@ -81,3 +81,5 @@ STATIC_ASSERT(sizeof(Double) == 8, "Expected Double to be 8 bytes.");
         #define KAPI
     #endif
 #endif
+
+#define KCLAMP(value, min, max) (value <= min) ? min : (value >= max) ? max : value;

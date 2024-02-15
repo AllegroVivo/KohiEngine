@@ -3,6 +3,7 @@
 #include "vulkan_types.inl"
 #include "vulkan_platform.h"
 #include "vulkan_device.h"
+#include "vulkan_swapchain.h"
 
 #include "core/logger.h"
 #include "core/kstring.h"
@@ -17,7 +18,10 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
     void* user_data);
 
+Int32 find_memory_index(UInt32 type_filter, UInt32 property_flags);
+
 Boolean vulkan_renderer_backend_initialize(renderer_backend* backend, const char* application_name, struct platform_state* plat_state) {
+    context.find_memory_index = find_memory_index;
     context.allocator = 0;
 
     VkApplicationInfo app_info = { VK_STRUCTURE_TYPE_APPLICATION_INFO };
@@ -119,11 +123,29 @@ Boolean vulkan_renderer_backend_initialize(renderer_backend* backend, const char
         return FALSE;
     }
 
+    vulkan_swapchain_create(
+        &context,
+        context.framebuffer_width,
+        context.framebuffer_height,
+        &context.swapchain);
+
     KINFO("Vulkan renderer intialized successfully.");
     return TRUE;
 }
 
 void vulkan_renderer_backend_shutdown(renderer_backend* backend) {
+    
+    vulkan_swapchain_destroy(&context, &context.swapchain);
+    
+    KDEBUG("Destroying Vulkan device...");
+    vulkan_device_destroy(&context);
+
+    KDEBUG("Destroying Vulkan surface...");
+    if (context.surface) {
+        vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
+        context.surface = 0;
+    }
+
     KDEBUG("Destroying Vulkan debugger");
     if(context.debug_messenger) {
         PFN_vkDestroyDebugUtilsMessengerEXT func = 
@@ -168,4 +190,18 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     }
 
     return VK_FALSE;
+}
+
+Int32 find_memory_index(UInt32 type_filter, UInt32 property_flags) {
+    VkPhysicalDeviceMemoryProperties memory_properties;
+    vkGetPhysicalDeviceMemoryProperties(context.device.physical_device, &memory_properties);
+
+    for (UInt32 i = 0; i < memory_properties.memoryTypeCount; ++i) {
+        if (type_filter & (1 << i) && (memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags) {
+            return i;
+        }
+    }
+    
+    KWARN("Unable to find suitable memory type!");
+    return -1;
 }
