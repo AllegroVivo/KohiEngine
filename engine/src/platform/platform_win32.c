@@ -3,8 +3,10 @@
 #if KPLATFORM_WINDOWS
 
 #include "containers/darray.h"
+
 #include "core/logger.h"
 #include "core/input.h"
+#include "core/event.h"
 
 #include <Windows.h>
 #include <windowsx.h>
@@ -208,7 +210,9 @@ LRESULT CALLBACK win_32_process_message(HWND hwnd, UInt32 msg, WPARAM w_param, L
         case WM_ERASEBKGND:
             return 1;
         case WM_CLOSE:
-            return 0;
+            event_context data = { };
+            event_fire(EVENT_CODE_APPLICATION_QUIT, 0, data);
+            return TRUE;
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
