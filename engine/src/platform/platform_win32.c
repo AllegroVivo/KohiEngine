@@ -218,10 +218,15 @@ LRESULT CALLBACK win_32_process_message(HWND hwnd, UInt32 msg, WPARAM w_param, L
             return 0;
         case WM_SIZE:
         {
-            // RECT r;
-            // GetClientRect(hwnd, &r);
-            // UInt32 width = r.right - r.left;
-            // UInt32 height = r.bottom - r.top;
+            RECT r;
+            GetClientRect(hwnd, &r);
+            UInt32 width = r.right - r.left;
+            UInt32 height = r.bottom - r.top;
+
+            event_context context;
+            context.data.u16[0] = (UInt16)width;
+            context.data.u16[1] = (UInt16)height;
+            event_fire(EVENT_CODE_RESIZED, 0, context);
         } break;
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:

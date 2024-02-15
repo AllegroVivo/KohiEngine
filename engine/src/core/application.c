@@ -25,6 +25,7 @@ static application_state app_state;
 
 Boolean application_on_event(UInt16 code, void* sender, void* listener_inst, event_context context);
 Boolean application_on_key(UInt16 code, void* sender, void* listener_inst, event_context context);
+Boolean applicataion_on_resized(UInt16 code, void* sender, void* listener_inst, event_context context);
 
 Boolean application_create(game* game_inst) {
     if (initialized) {
@@ -55,6 +56,7 @@ Boolean application_create(game* game_inst) {
     event_register(EVENT_CODE_APPLICATION_QUIT, 0, application_on_event);
     event_register(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
     event_register(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
+    event_register(EVENT_CODE_RESIZED, 0, applicataion_on_resized);
     
     if (!platform_startup(
             &app_state.platform, 
@@ -191,5 +193,36 @@ Boolean application_on_key(UInt16 code, void* sender, void* listener_inst, event
         UInt16 key_code = context.data.u16[0];
         KDEBUG("'%c' key released in window.", key_code);
     }
+    return FALSE;
+}
+
+Boolean applicataion_on_resized(UInt16 code, void* sender, void* listener_inst, event_context context) {
+    if (code == EVENT_CODE_RESIZED) {
+        UInt16 width = context.data.u16[0];
+        UInt16 height = context.data.u16[1];
+
+        if (width != app_state.width || height != app_state.height) {
+            app_state.width = width;
+            app_state.height = height;
+
+            KDEBUG("Window resize: %i, %i", width, height);
+
+            if (width == 0 || height == 0) {
+                KINFO("Window minimized, suspending application.");
+                app_state.is_suspended = TRUE;
+                return TRUE;
+            }
+            else {
+                if (app_state.is_suspended) {
+                    KINFO("Window restored, resuming application");
+                    app_state.is_suspended = FALSE;
+                }
+
+                app_state.game_inst->on_resize(app_state.game_inst, width, height);
+                renderer_on_resized(width, height);
+            }
+        }
+    }
+    
     return FALSE;
 }

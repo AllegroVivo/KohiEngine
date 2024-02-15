@@ -18,5 +18,6 @@
         "defines.h": "c",
         "vulkan_device.h": "c",
         "vulkan_image.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }

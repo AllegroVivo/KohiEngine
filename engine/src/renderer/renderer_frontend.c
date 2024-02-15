@@ -35,6 +35,15 @@ Boolean renderer_end_frame(Single delta_time) {
     return result;
 }
 
+void renderer_on_resized(UInt16 width, UInt16 height) {
+    if (backend) {
+        backend->resized(backend, width, height);
+    }
+    else {
+        KWARN("renderer backend does not exist to accept resize %i, %i", width, height);
+    }
+}
+
 Boolean renderer_draw_frame(render_packet* packet) {
     if (renderer_begin_frame(packet->delta_time)) {
         Boolean result = renderer_end_frame(packet->delta_time);

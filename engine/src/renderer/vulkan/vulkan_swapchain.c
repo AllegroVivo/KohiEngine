@@ -202,6 +202,8 @@ void create(vulkan_context* context, UInt32 width, UInt32 height, vulkan_swapcha
 }
 
 void destroy(vulkan_context* context, vulkan_swapchain* swapchain) {
+    vkDeviceWaitIdle(context->device.logical_device);
+    
     vulkan_image_destroy(context, &swapchain->depth_attachment);
 
     for (UInt32 i = 0; i < swapchain->image_count; ++i) {

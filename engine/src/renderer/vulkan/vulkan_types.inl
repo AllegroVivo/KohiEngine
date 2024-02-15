@@ -109,6 +109,8 @@ typedef struct vulkan_fence {
 typedef struct vulkan_context {
     UInt32 framebuffer_width;
     UInt32 framebuffer_height;
+    UInt64 framebuffer_size_generation;
+    UInt64 framebuffer_size_last_generation;
 
     VkInstance instance;
     VkAllocationCallbacks* allocator;
