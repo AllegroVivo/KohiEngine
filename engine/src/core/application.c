@@ -158,6 +158,11 @@ Boolean application_run() {
     return TRUE;
 }
 
+void application_get_framebuffer_size(UInt32* width, UInt32* height) {
+    *width = app_state.width;
+    *height = app_state.height;
+}
+
 Boolean application_on_event(UInt16 code, void* sender, void* listener_inst, event_context context) {
     switch (code) {
         case EVENT_CODE_APPLICATION_QUIT: {

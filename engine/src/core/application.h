@@ -15,3 +15,5 @@ typedef struct application_config
 
 KAPI Boolean application_create(struct game* game_inst);
 KAPI Boolean application_run();
+
+void application_get_framebuffer_size(UInt32* width, UInt32* height);

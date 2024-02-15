@@ -6,7 +6,10 @@
 #include "vulkan_swapchain.h"
 #include "vulkan_renderpass.h"
 #include "vulkan_command_buffer.h"
+#include "vulkan_framebuffer.h"
+#include "vulkan_fence.h"
 
+#include "core/application.h"
 #include "core/logger.h"
 #include "core/kstring.h"
 #include "core/kmemory.h"
@@ -14,6 +17,8 @@
 #include "containers/darray.h"
 
 static vulkan_context context;
+static UInt32 cached_framebuffer_width = 0;
+static UInt32 cached_framebuffer_height = 0;
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
@@ -24,10 +29,18 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
 Int32 find_memory_index(UInt32 type_filter, UInt32 property_flags);
 
 void create_command_buffers(renderer_backend* backend);
+void regenerate_frame_buffers(renderer_backend* backend, vulkan_swapchain* swapchain, vulkan_renderpass* renderpass);
 
 Boolean vulkan_renderer_backend_initialize(renderer_backend* backend, const char* application_name, struct platform_state* plat_state) {
+
     context.find_memory_index = find_memory_index;
     context.allocator = 0;
+
+    application_get_framebuffer_size(&cached_framebuffer_width, &cached_framebuffer_height);
+    context.framebuffer_width = cached_framebuffer_width != 0 ? cached_framebuffer_width : 800;
+    context.framebuffer_height = cached_framebuffer_height != 0 ? cached_framebuffer_height : 600;
+    cached_framebuffer_width = 0;
+    cached_framebuffer_height = 0;
 
     VkApplicationInfo app_info = { VK_STRUCTURE_TYPE_APPLICATION_INFO };
     app_info.apiVersion = VK_API_VERSION_1_2;
@@ -141,13 +154,66 @@ Boolean vulkan_renderer_backend_initialize(renderer_backend* backend, const char
         0.f, 0.f, 0.2f, 1.f,
         1.f, 0);
 
-        create_command_buffers(backend);
+    context.swapchain.framebuffers = darray_reserve(vulkan_framebuffer, context.swapchain.image_count);
+    regenerate_frame_buffers(backend, &context.swapchain, &context.main_renderpass);
+
+    create_command_buffers(backend);
+
+    context.image_available_semaphores = darray_reserve(VkSemaphore, context.swapchain.max_frames_in_flight);
+    context.queue_complete_semaphores = darray_reserve(VkSemaphore, context.swapchain.max_frames_in_flight);
+    context.in_flight_fences = darray_reserve(vulkan_fence, context.swapchain.max_frames_in_flight);
+
+    for (UInt8 i = 0; i < context.swapchain.max_frames_in_flight; ++i) {
+        VkSemaphoreCreateInfo semaphore_create_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+        vkCreateSemaphore(context.device.logical_device, &semaphore_create_info, context.allocator, &context.image_available_semaphores[i]);
+        vkCreateSemaphore(context.device.logical_device, &semaphore_create_info, context.allocator, &context.queue_complete_semaphores[i]);
+
+        vulkan_fence_create(&context, TRUE, &context.in_flight_fences[i]);
+    }
+    
+    context.images_in_flight = darray_reserve(vulkan_fence, context.swapchain.image_count);
+    for (UInt32 i = 0; i < context.swapchain.image_count; ++i) {
+        context.images_in_flight[i] = 0;
+    }
 
     KINFO("Vulkan renderer intialized successfully.");
     return TRUE;
 }
 
 void vulkan_renderer_backend_shutdown(renderer_backend* backend) {
+
+    vkDeviceWaitIdle(context.device.logical_device);
+
+    for (UInt8 i = 0; i < context.swapchain.max_frames_in_flight; ++i) {
+        if (context.image_available_semaphores[i]) {
+            vkDestroySemaphore(
+                context.device.logical_device,
+                context.image_available_semaphores[i],
+                context.allocator);
+            context.image_available_semaphores[i] = 0;
+        }
+        if (context.queue_complete_semaphores[i]) {
+            vkDestroySemaphore(
+                context.device.logical_device,
+                context.queue_complete_semaphores[i],
+                context.allocator);
+            context.queue_complete_semaphores[i] = 0;
+        }
+
+        vulkan_fence_destroy(&context, &context.in_flight_fences[i]);
+    }
+
+    darray_destroy(context.image_available_semaphores);
+    context.image_available_semaphores = 0;
+    
+    darray_destroy(context.queue_complete_semaphores);
+    context.queue_complete_semaphores = 0;
+
+    darray_destroy(context.in_flight_fences);
+    context.in_flight_fences = 0;
+
+    darray_destroy(context.images_in_flight);
+    context.images_in_flight = 0;
         
     for (UInt32 i = 0; i < context.swapchain.image_count; i++) {
         if (context.graphics_command_buffers[i].handle) {
@@ -157,6 +223,11 @@ void vulkan_renderer_backend_shutdown(renderer_backend* backend) {
     }
     darray_destroy(context.graphics_command_buffers);
     context.graphics_command_buffers = 0;
+
+    for (UInt32 i = 0; i < context.swapchain.image_count; ++i) {
+        vulkan_framebuffer_destroy(&context, &context.swapchain.framebuffers[i]);
+    }
+    
 
     vulkan_renderpass_destroy(&context, &context.main_renderpass);
     vulkan_swapchain_destroy(&context, &context.swapchain);
@@ -254,4 +325,22 @@ void create_command_buffers(renderer_backend* backend) {
     }
     
     KINFO("Vulkan command buffers created.");
+}
+
+void regenerate_frame_buffers(renderer_backend* backend, vulkan_swapchain* swapchain, vulkan_renderpass* renderpass) {
+    for (UInt32 i = 0; i < swapchain->image_count; ++i) {
+        UInt32 attachment_count = 2;
+        VkImageView attachments[] = {
+            swapchain->views[i],
+            swapchain->depth_attachment.view};
+        
+        vulkan_framebuffer_create(
+            &context,
+            renderpass,
+            context.framebuffer_width,
+            context.framebuffer_height,
+            attachment_count,
+            attachments,
+            &context.swapchain.framebuffers[i]);
+    }
 }
