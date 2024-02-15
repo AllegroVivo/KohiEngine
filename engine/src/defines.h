@@ -83,3 +83,11 @@ STATIC_ASSERT(sizeof(Double) == 8, "Expected Double to be 8 bytes.");
 #endif
 
 #define KCLAMP(value, min, max) (value <= min) ? min : (value >= max) ? max : value;
+
+#ifdef _MSC_VER
+    #define KINLINE __forceinline
+    #define KNOINLINE __declspec(noinline)
+#else
+    #define KINLINE static inline
+    #define KNOINLINE
+#endif

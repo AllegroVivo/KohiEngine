@@ -53,3 +53,5 @@ dkms.conf
 
 # Miscellaenous
 .idea/
+bin/
+obj/
