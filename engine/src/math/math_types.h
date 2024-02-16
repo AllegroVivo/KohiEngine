@@ -32,10 +32,7 @@ typedef struct vec3_u {
 } vec3;
 
 typedef struct vec4_u {
-#if defined(KUSE_SIMD)
-    alignas(16) __m128 data;
-#endif
-    alignas(16) Single elements[4];
+    Single elements[4];
     union {
         struct {
             union {
@@ -55,3 +52,8 @@ typedef struct vec4_u {
 } vec4;
 
 typedef vec4 quat;
+
+typedef union mat4_u {
+    Single data[16];
+} mat4;
+
