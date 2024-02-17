@@ -4,7 +4,7 @@ OBJ_DIR := obj
 
 ASSEMBLY := testbed
 EXTENSION := .exe
-COMPILER_FLAGS := -g -Wno-missing-braces -fdeclspec
+COMPILER_FLAGS := -g -MD -Wno-missing-braces -Werror=vla -fdeclspec
 INCLUDE_FLAGS := -Iengine\src -Itestbed\src
 LINKER_FLAGS := -g -lengine.lib -L$(OBJ_DIR)\engine -L$(BUILD_DIR)
 DEFINES := -D_DEBUG -DKIMPORT
@@ -40,3 +40,5 @@ clean:
 $(OBJ_DIR)/%.c.o: %.c
 	@echo   $<...
 	@clang $< $(COMPILER_FLAGS) -c -o $@ $(DEFINES) $(INCLUDE_FLAGS)
+
+-include $(OBJ_FILES:.o=.d)

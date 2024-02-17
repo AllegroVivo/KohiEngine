@@ -8,6 +8,8 @@ typedef struct clock
     Double elapsed;
 } clock;
 
-void clock_update(clock* clock);
-void clock_start(clock* clock);
-void clock_stop(clock* clock);
+KAPI void clock_update(clock* clock);
+
+KAPI void clock_start(clock* clock);
+
+KAPI void clock_stop(clock* clock);

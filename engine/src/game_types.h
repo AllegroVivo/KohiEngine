@@ -10,4 +10,5 @@ typedef struct game
     Boolean (*render)(struct game* game_inst, Single delta_time);
     void (*on_resize)(struct game* game_inst, UInt32 width, UInt32 height);
     void* state;
+    void* application_state;
 } game;

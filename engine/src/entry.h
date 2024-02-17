@@ -2,14 +2,11 @@
 
 #include "core/application.h"
 #include "core/logger.h"
-#include "core/kmemory.h"
 #include "game_types.h"
 
 extern Boolean create_game(game* out_game);
 
 int main(void) {
-
-    initialize_memory();
 
     game game_instance;
     if (!create_game(&game_instance)) {
@@ -31,8 +28,6 @@ int main(void) {
         KINFO("Application did not shut down gracefully.");
         return 2;
     }
-
-    shutdown_memory();
 
     return 0;
 }

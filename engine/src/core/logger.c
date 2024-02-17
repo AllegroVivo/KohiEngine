@@ -6,12 +6,34 @@
 #include <string.h>
 #include <stdarg.h>
 
-Boolean initialize_logging() {
+typedef struct logger_system_state {
+    Boolean initialized;
+} logger_system_state;
+
+static logger_system_state* state_ptr;
+
+Boolean initialize_logging(UInt64* memory_requirement, void* state) {
+    *memory_requirement = sizeof(logger_system_state);
+
+    if (state == 0) {
+        return TRUE;
+    }
+
+    state_ptr = state;
+    state_ptr->initialized = TRUE;
+
+    // KFATAL("Test fatal message");
+    // KERROR("Test error message");
+    // KWARN("Test warning message");
+    // KINFO("Test info message");
+    // KDEBUG("Test debug message");
+    // KTRACE("Test trace message");
+
     return TRUE;
 }
 
-void shutdown_logging() {
-    
+void shutdown_logging(void* state) {
+    state_ptr = 0;
 }
 
 void log_output(log_level level, const char* message, ...) {

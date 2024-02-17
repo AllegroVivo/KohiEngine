@@ -43,6 +43,27 @@ void input_update(Double delta_time) {
 }
 
 void input_process_key(keys key, Boolean pressed) {
+    if (key == KEY_LALT) {
+            KINFO("Left Alt");
+        }
+        else if (key == KEY_RALT) {
+            KINFO("Right Alt");
+        }
+        
+        if (key == KEY_LCONTROL) {
+            KINFO("Left CTRL");
+        }
+        else if (key == KEY_RCONTROL) {
+            KINFO("Right CTRL");
+        }
+        
+        if (key == KEY_LSHIFT) {
+            KINFO("Left Shift");
+        }
+        else if (key == KEY_RSHIFT) {
+            KINFO("Right Shift");
+        }
+
     if (state.keyboard_current.keys[key] != pressed) {
         state.keyboard_current.keys[key] = pressed;
 

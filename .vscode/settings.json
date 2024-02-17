@@ -1,23 +1,5 @@
 {
     "workbench.colorTheme": "Gruvbox Dark (Hard)",
     "editor.cursorStyle": "line",
-    "files.associations": {
-        "test.h": "c",
-        "vulkan.h": "c",
-        "vulkan_core.h": "c",
-        "vk_platform.h": "c",
-        "type_traits": "c",
-        "typeinfo": "c",
-        "windowsx.h": "c",
-        "vulkan_platform.h": "c",
-        "renderer_frontend.h": "c",
-        "iosfwd": "c",
-        "tuple": "cpp",
-        "utility": "cpp",
-        "kmemory.h": "c",
-        "defines.h": "c",
-        "vulkan_device.h": "c",
-        "vulkan_image.h": "c"
-    },
     "C_Cpp.errorSquiggles": "enabled"
 }

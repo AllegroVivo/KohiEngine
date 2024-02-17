@@ -13,7 +13,7 @@ typedef signed long long Int64;
 typedef float Single;
 typedef double Double;
 
-typedef char Boolean;
+typedef _Bool Boolean;
 typedef int Bool32;
 
 #if defined(__clang__) || defined(__gcc__)
