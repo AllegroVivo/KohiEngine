@@ -192,6 +192,8 @@ void vulkan_renderer_backend_shutdown(renderer_backend* backend) {
 
     vkDeviceWaitIdle(context.device.logical_device);
 
+    vulkan_object_shader_destroy(&context, &context.object_shader);
+
     for (UInt8 i = 0; i < context.swapchain.max_frames_in_flight; ++i) {
         if (context.image_available_semaphores[i]) {
             vkDestroySemaphore(
