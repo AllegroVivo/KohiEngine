@@ -17,6 +17,10 @@
 
 #include "containers/darray.h"
 
+#include "platform/platform.h"
+
+#include "shaders/vulkan_object_shader.h"
+
 static vulkan_context context;
 static UInt32 cached_framebuffer_width = 0;
 static UInt32 cached_framebuffer_height = 0;
@@ -177,6 +181,8 @@ Boolean vulkan_renderer_backend_initialize(renderer_backend* backend, const char
     for (UInt32 i = 0; i < context.swapchain.image_count; ++i) {
         context.images_in_flight[i] = 0;
     }
+
+    if (!vulkan_object_shader_create(&context, &context.object_shader))
 
     KINFO("Vulkan renderer intialized successfully.");
     return TRUE;

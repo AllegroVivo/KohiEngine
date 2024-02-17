@@ -106,6 +106,23 @@ typedef struct vulkan_fence {
     Boolean is_signaled;
 } vulkan_fence;
 
+typedef struct vulkan_shader_stage {
+    VkShaderModuleCreateInfo create_info;
+    VkShaderModule handle;
+    VkPipelineShaderStageCreateInfo shader_state_create_info;
+} vulkan_shader_stage;
+
+typedef struct vulkan_pipeline {
+    VkPipeline handle;
+    VkPipelineLayout pipeline_layout;
+} vulkan_pipeline;
+
+#define OBJECT_SHADER_STAGE_COUNT 2
+typedef struct vulkan_object_shader {
+    vulkan_shader_stage stages[OBJECT_SHADER_STAGE_COUNT];
+    vulkan_pipeline pipeline;
+} vulkan_object_shader;
+
 typedef struct vulkan_context {
     UInt32 framebuffer_width;
     UInt32 framebuffer_height;
@@ -139,6 +156,7 @@ typedef struct vulkan_context {
 
     Boolean recreating_swapchain;
 
-    Int32 (*find_memory_index)(UInt32 type_filter, UInt32 property_flags);
+    vulkan_object_shader object_shader;
 
+    Int32 (*find_memory_index)(UInt32 type_filter, UInt32 property_flags);
 } vulkan_context;
