@@ -142,8 +142,8 @@ typedef enum keys {
     KEYS_MAX_KEYS
 } keys;
 
-void input_initialize();
-void input_shutdown();
+void input_system_initialize(UInt64* memory_requirement, void* state);
+void input_system_shutdown(void* state);
 void input_update(Double delta_time);
 
 KAPI Boolean input_is_key_down(keys key);

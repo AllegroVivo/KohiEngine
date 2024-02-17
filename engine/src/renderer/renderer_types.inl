@@ -9,10 +9,9 @@ typedef enum renderer_backend_type {
 } renderer_backend_type;
 
 typedef struct renderer_backend {
-    struct platform_state* plat_state;
     UInt64 frame_number;
 
-    Boolean (*initialize)(struct renderer_backend* backend, const char* application_name, struct platform_state* plat_state);
+    Boolean (*initialize)(struct renderer_backend* backend, const char* application_name);
     void (*shutdown)(struct renderer_backend* backend);
     void (*resized)(struct renderer_backend* backend, UInt16 width, UInt16 height);
     Boolean (*begin_frame)(struct renderer_backend* backend, Single delta_time);

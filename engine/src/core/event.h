@@ -25,8 +25,8 @@ typedef struct event_context {
 
 typedef Boolean (*PFN_on_event)(UInt16 code, void* sender, void* listener_inst, event_context data);
 
-Boolean event_initialize();
-void event_shutdown();
+void event_system_initialize();
+void event_system_shutdown();
 
 KAPI Boolean event_register(UInt16 code, void* listener, PFN_on_event on_event);
 KAPI Boolean event_unregister(UInt16 code, void* listener, PFN_on_event on_event);
