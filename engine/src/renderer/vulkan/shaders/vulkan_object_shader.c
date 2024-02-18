@@ -88,6 +88,7 @@ void vulkan_object_shader_destroy(vulkan_context* context, struct vulkan_object_
     
 }
 
-void vulkan_object_shader_user(vulkan_context* context, struct vulkan_object_shader* shader) {
-
+void vulkan_object_shader_use(vulkan_context* context, struct vulkan_object_shader* shader) {
+    UInt32 image_index = context->image_index;
+    vulkan_pipeline_bind(&context->graphics_command_buffers[image_index], VK_PIPELINE_BIND_POINT_GRAPHICS, &shader->pipeline);
 }
