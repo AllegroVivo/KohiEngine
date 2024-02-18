@@ -10,6 +10,17 @@
         KASSERT(expr == VK_SUCCESS); \
     }
 
+typedef struct vulkan_buffer {
+    UInt64 total_size;
+    VkBuffer handle;
+    VkBufferUsageFlagBits usage;
+    Boolean is_locked;
+    VkDeviceMemory memory;
+    Int32 memory_index;
+    UInt32 memory_property_flags;
+} vulkan_buffer;
+
+
 typedef struct vulkan_swapchain_support_info {
     VkSurfaceCapabilitiesKHR capabilities;
     UInt32 format_count;
@@ -142,6 +153,9 @@ typedef struct vulkan_context {
     vulkan_swapchain swapchain;
     vulkan_renderpass main_renderpass;
 
+    vulkan_buffer object_vertex_buffer;
+    vulkan_buffer object_index_buffer;
+
     vulkan_command_buffer* graphics_command_buffers;
 
     VkSemaphore* image_available_semaphores;
@@ -157,6 +171,9 @@ typedef struct vulkan_context {
     Boolean recreating_swapchain;
 
     vulkan_object_shader object_shader;
+
+    UInt64 geometry_vertex_offset;
+    UInt64 geometry_index_offset;
 
     Int32 (*find_memory_index)(UInt32 type_filter, UInt32 property_flags);
 } vulkan_context;

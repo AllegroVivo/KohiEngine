@@ -9,6 +9,7 @@
 #include "vulkan_framebuffer.h"
 #include "vulkan_fence.h"
 #include "vulkan_utils.h"
+#include "vulkan_buffer.h"
 
 #include "core/application.h"
 #include "core/logger.h"
@@ -16,6 +17,8 @@
 #include "core/kmemory.h"
 
 #include "containers/darray.h"
+
+#include "math/math_types.h"
 
 #include "platform/platform.h"
 
@@ -32,6 +35,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     void* user_data);
 
 Int32 find_memory_index(UInt32 type_filter, UInt32 property_flags);
+Boolean create_buffers(vulkan_context* context);
 
 void create_command_buffers(renderer_backend* backend);
 void regenerate_framebuffers(renderer_backend* backend, vulkan_swapchain* swapchain, vulkan_renderpass* renderpass);
@@ -182,7 +186,12 @@ Boolean vulkan_renderer_backend_initialize(renderer_backend* backend, const char
         context.images_in_flight[i] = 0;
     }
 
-    if (!vulkan_object_shader_create(&context, &context.object_shader))
+    if (!vulkan_object_shader_create(&context, &context.object_shader)) {
+        KERROR("Error loading built-in basic_lighting shader");
+        return FALSE;
+    }
+
+    create_buffers(&context);
 
     KINFO("Vulkan renderer intialized successfully.");
     return TRUE;
@@ -191,6 +200,10 @@ Boolean vulkan_renderer_backend_initialize(renderer_backend* backend, const char
 void vulkan_renderer_backend_shutdown(renderer_backend* backend) {
 
     vkDeviceWaitIdle(context.device.logical_device);
+
+    vulkan_buffer_destroy(&context, &context.object_vertex_buffer);
+    vulkan_buffer_destroy(&context, &context.object_index_buffer);
+
 
     vulkan_object_shader_destroy(&context, &context.object_shader);
 
@@ -531,6 +544,38 @@ Boolean recreate_swapchain(renderer_backend* backend) {
     create_command_buffers(backend);
 
     context.recreating_swapchain = FALSE;
+
+    return TRUE;
+}
+
+Boolean create_buffers(vulkan_context* context) {
+    VkMemoryPropertyFlagBits memory_property_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    const UInt64 vertex_buffer_size = sizeof(vertex_3d) * 1024 * 1024;
+    if (!vulkan_buffer_create(
+            context,
+            vertex_buffer_size,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            memory_property_flags,
+            TRUE,
+            &context->object_vertex_buffer)) {
+        KERROR("Error creating vertex buffer.");
+        return FALSE;
+    }
+    context->geometry_vertex_offset = 0;
+
+    const UInt64 index_buffer_size = sizeof(UInt32) * 1024 * 1024;
+    if (!vulkan_buffer_create(
+            context,
+            index_buffer_size,
+            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            memory_property_flags,
+            TRUE,
+            &context->object_index_buffer)) {
+        KERROR("Error creating vertex buffer.");
+        return FALSE;
+    }
+    context->geometry_index_offset = 0;
 
     return TRUE;
 }
