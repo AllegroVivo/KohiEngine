@@ -1,7 +1,8 @@
 #pragma once
 
 #include "defines.h"
-#include <core/asserts.h>
+#include "core/asserts.h"
+#include "renderer/renderer_types.inl"
 
 #include <vulkan/vulkan.h>
 
@@ -131,6 +132,16 @@ typedef struct vulkan_pipeline {
 #define OBJECT_SHADER_STAGE_COUNT 2
 typedef struct vulkan_object_shader {
     vulkan_shader_stage stages[OBJECT_SHADER_STAGE_COUNT];
+    
+    VkDescriptorPool global_descriptor_pool;
+    VkDescriptorSetLayout global_descriptor_set_layout;
+
+    VkDescriptorSet global_descriptor_sets[3];
+
+    global_uniform_object global_ubo;
+
+    vulkan_buffer global_uniform_buffer;
+
     vulkan_pipeline pipeline;
 } vulkan_object_shader;
 
